@@ -7,7 +7,9 @@ import { S3 } from "./lib/aws";
 
 const bucket = "paravotar";
 
-const folder = "papeletas/2020/";
+const folder = "papeletas";
+const CURRENT_BALLOT_YEAR = '2024'
+const VALID_BALLOT_YEARS = ['2020', CURRENT_BALLOT_YEAR]
 
 const constructCDNUrl = (suffix: string) => {
   return `https://cdn.paravotar.org/${suffix}`;
@@ -75,6 +77,7 @@ export const ballotsByTown = middy(getBallotsByTown)
 
 const getBallotsByPrecint = async (event: any) => {
   const precintId = _.get(event, "queryStringParameters.precintId", null);
+  const ballotYear = _.get(event, "queryStringParameters.ballotYear", '2020');
 
   if (!precintId) {
     return {
@@ -83,12 +86,19 @@ const getBallotsByPrecint = async (event: any) => {
     };
   }
 
+  if (!VALID_BALLOT_YEARS.includes(ballotYear)) {
+    return {
+      statusCode: 400,
+      body: "Invalid Ballot Year",
+    };
+  }
+
   try {
     const resp = await S3.listObjectsV2({
       Bucket: bucket,
       MaxKeys: 200,
       Delimiter: "/",
-      Prefix: folder,
+      Prefix: `${folder}/${ballotYear}/`,
     }).promise();
 
     const legislative = resp.CommonPrefixes.filter(({ Prefix }) =>
@@ -110,11 +120,11 @@ const getBallotsByPrecint = async (event: any) => {
     const name = parts[parts.length - 2].split('-')
 
     const townId = name.length > 3 ? name.slice(0, 2).join('-') : name[0]
-    
+
     const municipality = resp.CommonPrefixes.filter(({ Prefix }) =>
       Prefix.endsWith(`${townId}/`)
     );
-    
+
 
     const response = {
       estatal: state.Prefix,
@@ -141,33 +151,32 @@ export const ballotsByPrecint = middy(getBallotsByPrecint)
   .use(httpErrorHandler());
 
 
-  const getAllBallots = async (event: any) => {
-  
-    try {
-      const resp = await S3.listObjectsV2({
-        Bucket: bucket,
-        MaxKeys: 200,
-        Delimiter: "/",
-        Prefix: folder,
-      }).promise();
-  
-      const response = resp.CommonPrefixes.map(({ Prefix }) => Prefix);
-  
-      return {
-        statusCode: 200,
-        body: JSON.stringify(response, null, 2),
-      };
-    } catch (e) {
-      console.log(e);
-      return {
-        statusCode: 500,
-        body: "Internal Server Error",
-      };
-    }
-  };
-  
-  export const allBallots = middy(getAllBallots)
-    .use(cors())
-    .use(doNotWaitForEmptyEventLoop())
-    .use(httpErrorHandler());
-  
+const getAllBallots = async (event: any) => {
+
+  try {
+    const resp = await S3.listObjectsV2({
+      Bucket: bucket,
+      MaxKeys: 200,
+      Delimiter: "/",
+      Prefix: folder,
+    }).promise();
+
+    const response = resp.CommonPrefixes.map(({ Prefix }) => Prefix);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(response, null, 2),
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      statusCode: 500,
+      body: "Internal Server Error",
+    };
+  }
+};
+
+export const allBallots = middy(getAllBallots)
+  .use(cors())
+  .use(doNotWaitForEmptyEventLoop())
+  .use(httpErrorHandler());
