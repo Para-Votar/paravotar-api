@@ -20,7 +20,7 @@ service: scrape-lambda
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs18.x
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -96,7 +96,7 @@ functions:
       - http:
           path: /consulta
           method: get
-  
+
   ballotsByTown:
     handler: getBallots.ballotsByTown
     memorySize: 1536MB
@@ -107,7 +107,7 @@ functions:
       - http:
           path: /ballots/ByTown
           method: get
-  
+
   ballotsByPrecint:
     handler: getBallots.ballotsByPrecint
     memorySize: 1536MB
@@ -118,7 +118,7 @@ functions:
       - http:
           path: /ballots/ByPrecint
           method: get
-    
+
   allBallots:
     handler: getBallots.allBallots
     memorySize: 1536MB
@@ -129,7 +129,7 @@ functions:
       - http:
           path: /ballots/all
           method: get
-  
+
   voterCenter:
     handler: centros-de-votacion.voterCenter
     memorySize: 1536MB
