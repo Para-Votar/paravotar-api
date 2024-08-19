@@ -5,6 +5,7 @@ service: para-votar
 provider:
   name: aws
   runtime: nodejs18.x
+  profile: paravotar
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -26,9 +27,6 @@ provider:
         - 'sqs:SendMessage'
         - 'sqs:ReceiveMessage'
       Resource: 'arn:aws:sqs:*:*:*'
-
-plugins:
-  - serverless-dotenv-plugin
 
 package:
   exclude:
