@@ -1,26 +1,11 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
-service: scrape-lambda
-# app and org for use with dashboard.serverless.com
-
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
+org: paravotar
+app: para-votar-api
+service: para-votar
 
 provider:
   name: aws
   runtime: nodejs18.x
+  profile: paravotar
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -43,44 +28,6 @@ provider:
         - 'sqs:ReceiveMessage'
       Resource: 'arn:aws:sqs:*:*:*'
 
-plugins:
-  - serverless-webpack
-  - serverless-offline
-  - serverless-dotenv-plugin
-
-custom:
-  webpack:
-    webpackConfig: webpack.config.js
-    includeModules: true
-    packager: "npm"
-
-  serverless-offline:
-    location: .webpack/service
-
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
-
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
 package:
   exclude:
     - node_modules/puppeteer/.local-chromium/**
@@ -88,7 +35,7 @@ package:
 functions:
   consulta:
     handler: voterStatus.consulta
-    memorySize: 1536MB
+    memorySize: 1536
     timeout: 30
     environment:
       DEBUG: true
@@ -99,7 +46,7 @@ functions:
 
   ballotsByTown:
     handler: getBallots.ballotsByTown
-    memorySize: 1536MB
+    memorySize: 1536
     timeout: 30
     environment:
       DEBUG: true
@@ -110,7 +57,7 @@ functions:
 
   ballotsByPrecint:
     handler: getBallots.ballotsByPrecint
-    memorySize: 1536MB
+    memorySize: 1536
     timeout: 30
     environment:
       DEBUG: true
@@ -121,7 +68,7 @@ functions:
 
   allBallots:
     handler: getBallots.allBallots
-    memorySize: 1536MB
+    memorySize: 1536
     timeout: 30
     environment:
       DEBUG: true
@@ -132,7 +79,7 @@ functions:
 
   voterCenter:
     handler: centros-de-votacion.voterCenter
-    memorySize: 1536MB
+    memorySize: 1536
     timeout: 30
     environment:
       DEBUG: true
@@ -143,7 +90,7 @@ functions:
 
   createBallotTask:
     handler: generateBallot.createBallotTask
-    memorySize: 1536MB
+    memorySize: 1536
     timeout: 30
     environment:
       DEBUG: true
@@ -154,7 +101,7 @@ functions:
 
   getPdfUrl:
     handler: pdfUrl.getPdfUrlHandler
-    memorySize: 1536MB
+    memorySize: 1536
     timeout: 30
     environment:
       DEBUG: true
@@ -176,20 +123,3 @@ functions:
       - sqs:
           arn: arn:aws:sqs:us-east-1:214416850928:BallotCleanUpQueue
           batchSize: 1
-
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
-# resources:
-#  Resources:
-#    GenerateBallotQueue:
-#      Type: AWS::SQS::Queue
-#      Properties:
-#        QueueName: "GenerateBallotQueue"
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"

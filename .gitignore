@@ -1,4 +1,6 @@
 .DS_Store
+.vscode
+.webpack
 # Logs
 logs
 *.log
